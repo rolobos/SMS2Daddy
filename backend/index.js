@@ -7,16 +7,13 @@ var changes = db.changes({
     live: true,
     include_docs: true
 }).on('change', event => {
-    
     var doc = event.doc;
     if (doc.tipo === 'mensaje' && !doc.sms) {
-        console.log(doc)
         doc.destinatarios.forEach(destinatario => {
-            getTel(destinatario.value).then(()=>{
-                
+            getTel(destinatario.id).then((tel)=>{
+                sendSMS("569"+tel,doc.mensaje)
             })
         });
-
     }
 });
 function sendSMS(tel, text) {
@@ -67,7 +64,8 @@ function sendSMS(tel, text) {
 function getTel(usuario){
     var promesa = new Promise((resolve,reject)=>{
         db.get(usuario).then(data => {
-            
+            console.log("tel",data.telefono)
+            resolve(data.telefono)
         })
     });
     return promesa;
